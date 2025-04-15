@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Loan Application Summary</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+    }
+    h2 {
+      color: #333;
+    }
+    .applicant {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 5px solid green;
+    }
+    .rejected {
+      border-left-color: red;
+    }
+    .label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>✅ Approved Applicants Summary</h2>
+  <div id="approved-list"></div>
+
+  <h2>❌ Rejected Applicants Summary</h2>
+  <div id="rejected-list"></div>
+
+  <script>
+    // Sample applicants array
+    const applicants = [
+      { name: "Alice", income: 50000, loanAmount: 10000, duration: 2 },
+      { name: "Bob", income: 30000, loanAmount: 15000, duration: 3 },
+      { name: "Charlie", income: 70000, loanAmount: 25000, duration: 5 },
+      { name: "Daisy", income: 25000, loanAmount: 12000, duration: 4 }
+    ];
+
+    // Arrow function to check eligibility (income must be >= 40000)
+    const isEligible = applicant => applicant.income >= 40000;
+
+    // Arrow function to assign interest rate based on loan amount
+    const getInterestRate = loanAmount => {
+      if (loanAmount <= 10000) return 0.05;
+      else if (loanAmount <= 20000) return 0.1;
+      else return 0.15;
+    };
+
+    // Arrow function to calculate total repayment
+    const calculateTotalRepayment = (loanAmount, interestRate, years) => {
+      return loanAmount * (1 + interestRate * years);
+    };
+
+    // Arrow function to calculate monthly repayment
+    const calculateMonthlyRepayment = (totalRepayment, years) => {
+      return totalRepayment / (years * 12);
+    };
+
+    const approvedApplicants = [];
+    const rejectedApplicants = [];
+
+    applicants.forEach(applicant => {
+      if (isEligible(applicant)) {
+        const rate = getInterestRate(applicant.loanAmount);
+        const total = calculateTotalRepayment(applicant.loanAmount, rate, applicant.duration);
+        const monthly = calculateMonthlyRepayment(total, applicant.duration);
+
+        applicant.interestRate = rate;
+        applicant.totalRepayment = total.toFixed(2);
+        applicant.monthlyRepayment = monthly.toFixed(2);
+        applicant.status = "Approved";
+
+        approvedApplicants.push(applicant);
+      } else {
+        applicant.status = "Rejected";
+        rejectedApplicants.push(applicant);
+      }
+    });
+
+    const approvedList = document.getElementById('approved-list');
+    const rejectedList = document.getElementById('rejected-list');
+
+    approvedApplicants.forEach(applicant => {
+      approvedList.innerHTML += `
+        <div class="applicant">
+          <p><span class="label">Name:</span> ${applicant.name}</p>
+          <p><span class="label">Loan Amount:</span> $${applicant.loanAmount}</p>
+          <p><span class="label">Duration:</span> ${applicant.duration} years</p>
+          <p><span class="label">Interest Rate:</span> ${(applicant.interestRate * 100).toFixed(2)}%</p>
+          <p><span class="label">Total Repayment:</span> $${applicant.totalRepayment}</p>
+          <p><span class="label">Monthly Payment:</span> $${applicant.monthlyRepayment}</p>
+          <p><span class="label">Status:</span> ${applicant.status}</p>
+        </div>
+      `;
+    });
+
+    rejectedApplicants.forEach(applicant => {
+      rejectedList.innerHTML += `
+        <div class="applicant rejected">
+          <p><span class="label">Name:</span> ${applicant.name}</p>
+          <p><span class="label">Income:</span> $${applicant.income}</p>
+          <p><span class="label">Loan Amount:</span> $${applicant.loanAmount}</p>
+          <p><span class="label">Duration:</span> ${applicant.duration} years</p>
+          <p><span class="label">Status:</span> ${applicant.status}</p>
+          <p><span class="label">Reason:</span> Income below eligibility threshold</p>
+        </div>
+      `;
+    });
+  </script>
+
+</body>
+</html>
